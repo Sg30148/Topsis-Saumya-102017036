@@ -3,39 +3,25 @@ import sys
 import numpy as np
 import pandas as pd
 
-
-def get_normalised_matrix(df):
-    """
-    Normalises the features of the decision matrix.
-    """
-    denom = np.sqrt(np.sum(np.square(df), axis = 0))
-
-    return np.divide(df, denom)
-
-
-def get_weighted_matrix(df, w):
-    """
-    Multiplies features with their respective weights.
-    """
+def normalised_matrix(df):
+    nom = np.sqrt(np.sum(np.square(df), axis = 0))
+    return np.divide(df, nom)
+def multiply_weights_matrix(df, w):
     return np.multiply(df, w)
 
 
-def get_score_and_rank(df, i):
-    """
-    Calculates TOPSIS score from positive and negative seperation measures.
-    """
-    positive_ideal = df.max()
-    positive_ideal.iloc[np.where(i == '-')] = df.min().iloc[np.where(i == '-')]
+def per_score_and_rank(df, i):
 
-    negative_ideal = df.min()
-    negative_ideal.iloc[np.where(i == '-')] = df.max().iloc[np.where(i == '-')]
+    ideal_positive = df.max()
+    ideal_positive .iloc[np.where(i == '-')] = df.min().iloc[np.where(i == '-')]
 
-    # Seperation measures i.e. Euclidean distances from ideal values
-    S_positive = np.sqrt(np.sum(np.square(df - positive_ideal), axis = 1))
-    S_negative = np.sqrt(np.sum(np.square(df - negative_ideal), axis = 1))
+    ideal_negative  = df.min()
+    ideal_negative.iloc[np.where(i == '-')] = df.max().iloc[np.where(i == '-')]
+    S_pos = np.sqrt(np.sum(np.square(df - ideal_positive), axis = 1))
+    S_neg = np.sqrt(np.sum(np.square(df - ideal_negative), axis = 1))
 
-    # TOPSIS score
-    performance_score = S_negative/(S_negative + S_positive)
+
+    performance_score = S_neg/(S_neg + S_pos)
     ranks = performance_score.rank(ascending = False)
 
     return performance_score, ranks
@@ -85,10 +71,10 @@ def main():
         raise SystemExit(e)
 
 
-    normalised_df = get_normalised_matrix(df)
-    weighted_n_df = get_weighted_matrix(normalised_df, w)
+    normalised_df = normalised_matrix(df)
+    weighted_n_df = multiply_weights_matrix(normalised_df, w)
 
-    df['TOPSIS Score'], df['Rank'] = get_score_and_rank(weighted_n_df, i)
+    df['TOPSIS Score'], df['Rank'] = per_score_and_rank(weighted_n_df, i)
 
     df.to_csv(output_path)
 
