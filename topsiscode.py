@@ -1,10 +1,4 @@
-"""
-This program implements TOPSIS, a multi-criteria decision analysis (MCDA) method, using command line arguments
-as follows:
-    python topsis.py <Input data file> <Weights> <Impacts> <Output data file>
 
-Author: Amrita Bhatia
-"""
 import sys
 import numpy as np
 import pandas as pd
